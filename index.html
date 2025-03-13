@@ -22,16 +22,21 @@
             font-family: Lato, "Segoe UI", Avenir, Ubuntu, Tahoma, Verdana, Helvetica, sans-serif;
             background: url("favicon.png") no-repeat center center;
             background-size: cover; /* Ensures the image covers the whole screen */
+            position: relative;
         }
 
         h1 {
             font-size: 4em;
             font-weight: normal;
             text-transform: lowercase;
-            background: rgba(0, 0, 0, 0.5); /* Adds a dark background for readability */
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for readability */
             color: white;
             padding: 20px;
             border-radius: 10px;
+            position: absolute;
+            top: 30%; /* Moves the text to 1/3 of the page */
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centers text horizontally */
         }
     </style>
 </head>
