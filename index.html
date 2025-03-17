@@ -16,39 +16,76 @@
             width: 100%;
             height: 100%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
             font-family: Lato, "Segoe UI", Avenir, Ubuntu, Tahoma, Verdana, Helvetica, sans-serif;
             background: url("favicon.png") no-repeat center center;
-            background-size: cover; /* Ensures the image covers the whole screen */
-            position: relative;
+            background-size: cover;
         }
 
         h1 {
             font-size: 4em;
             font-weight: normal;
             text-transform: lowercase;
-            background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for readability */
+            background: rgba(0, 0, 0, 0.5);
             color: white;
             padding: 20px;
             border-radius: 10px;
-            position: absolute;
-            top: 65%; /* Moves the text to 2/3 of the page */
-            left: 50%;
-            transform: translate(-50%, -50%); /* Centers text horizontally */
+            margin-bottom: 20px;
+        }
+
+        form {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+        }
+
+        label {
+            color: white;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            background: #ff6600;
+            color: white;
+            font-size: 1.2em;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        input[type="submit"]:hover {
+            background: #ff4500;
         }
     </style>
 </head>
 <body>
     <h1>Coming soon!</h1>
     <form action="https://fabform.io/f/beN1UGE" method="post">
-        <!-- Replace "YOUR_FORM_ENDPOINT" with your actual FabForm form endpoint -->
-
         <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br>
+        <input type="email" id="email" name="email" required>
         <input type="submit" value="Submit">
-        
     </form>
 </body>
 </html>
