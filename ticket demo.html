@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Metro Transit — Tickets</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Metro Tickets">
+  <style>
+    :root{
+      --blue:#0b56a6;
+      --blue-ink:#0b56a6;
+      --border:#e6e8ef;
+      --card:#ffffff;
+      --inner:#eeeeef;
+      --text:#1b293b;
+      --muted:#5a6b7a;
+      --orange:#f07c22;
+      --green:#6dbd45;
+      --shadow: 0 6px 18px rgba(0,0,0,.08);
+      --navbg:#ffffff;
+      --navfg:#344253;
+      --navfg-active:#0b56a6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:#fff;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial}
+    .wrap{max-width:900px;margin:0 auto;min-height:100svh;background:#fff;display:flex;flex-direction:column;position:relative}
+    /* Topbar */
+    .topbar{position:sticky;top:0;display:flex;align-items:center;justify-content:center;height:56px;border-bottom:1px solid var(--border);background:#fff;z-index:5}
+    .topbar h1{font-size:18px;margin:0}
+    .hamburger{position:absolute;left:8px;top:10px;border:none;background:transparent;padding:10px;cursor:pointer}
+    .hamburger svg{width:24px;height:24px;color:#334}
+    /* Screens */
+    .screen{padding:20px;flex:1 1 auto;display:none}
+    .screen.active{display:block}
+    .section-title{color:#114a97;font-weight:800;font-size:22px;margin:8px 0 16px}
+    /* Stored Tickets: BIG, SQUARE cards */
+    .ticket-list{display:grid;gap:20px}
+    .ticket-card{background:var(--card);border:1px solid var(--border);border-radius:0;box-shadow:var(--shadow);padding:0}
+    .ticket-inner{background:var(--inner);border-radius:0;padding:22px 18px 22px 14px;display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;min-height:148px}
+    .logo-box{display:grid;place-items:center}
+    .logo-mini{position:relative;width:48px;height:48px;border-radius:10px;display:grid;place-items:center;color:#2070c4;font-weight:900}
+    .logo-mini .diamond{position:absolute;width:26%;aspect-ratio:1/1;background:var(--green);transform:rotate(45deg);border-radius:10%}
+    .logo-mini .t{font-size:18px;line-height:1;text-align:center}
+    .diamond.t{top:-8%;left:50%;transform:translate(-50%,0) rotate(45deg)}
+    .diamond.r{right:-8%;top:50%;transform:translate(0,-50%) rotate(45deg)}
+    .diamond.b{bottom:-8%;left:50%;transform:translate(-50%,0) rotate(45deg)}
+    .diamond.l{left:-8%;top:50%;transform:translate(0,-50%) rotate(45deg)}
+    .card-body{display:flex;flex-direction:column;gap:16px;align-items:flex-start}
+    .card-title{margin:0;font-weight:800;font-size:22px}
+    .cta{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 18px;border-radius:16px;border:2px solid var(--blue-ink);color:var(--blue-ink);background:#fff;font-weight:800;font-size:18px;cursor:pointer;width: clamp(260px, 70%, 520px)}
+    .cta svg{width:22px;height:22px; fill: currentColor;}
+    .cta:active{transform:scale(.98)}
+    /* Ticket View */
+    .seal{width:min(60vw,360px);height:min(60vw,360px);margin:18px auto 14px;position:relative;display:grid;place-items:center}
+    .ring{position:absolute;inset:0;border-radius:50%;background:var(--orange);animation:pulse 1.8s infinite ease-in-out;transform-origin:center;box-shadow:0 6px 20px rgba(0,0,0,.10) inset}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.10)}}
+    .token{position:absolute;inset:14%;border-radius:50%;background:#fff;box-shadow:0 8px 14px rgba(0,0,0,.08);display:grid;place-items:center}
+    .logo{display:grid;place-items:center;width:65%;height:65%;position:relative;font-weight:900;letter-spacing:-.5px;text-align:center;color:#2070c4}
+    .logo .text{font-size:44px;line-height:.9}
+    .diamond{position:absolute;width:22%;aspect-ratio:1/1;background:var(--green);transform:rotate(45deg);border-radius:10%;filter:drop-shadow(0 1px 0 rgba(0,0,0,.1))}
+    .diamond.top{top:-10%;left:50%;transform:translate(-50%,0) rotate(45deg)}
+    .diamond.right{right:-10%;top:50%;transform:translate(0,-50%) rotate(45deg)}
+    .diamond.bottom{bottom:-10%;left:50%;transform:translate(-50%,0) rotate(45deg)}
+    .diamond.left{left:-10%;top:50%;transform:translate(0,-50%) rotate(45deg)}
+    .clock{font-variant-numeric:tabular-nums;text-align:center;font-size:56px;font-weight:800;letter-spacing:1px;margin:8px 0 18px}
+    .pass-card{background:#fff;border:1px solid var(--border);border-radius:0;padding:16px}
+    .pass-title{font-size:22px;font-weight:800;margin:0 0 6px}
+    .pass-sub{color:var(--muted);margin:0 0 12px}
+    .expires{font-weight:800}
+    .back{margin-top:14px;display:inline-flex;gap:8px;align-items:center;border:none;background:#eef2ff;color:#0f4aa8;padding:10px 12px;border-radius:12px;font-weight:700}
+    /* Bottom nav */
+    .tabbar{position:sticky;bottom:0;left:0;right:0;display:flex;gap:8px;justify-content:space-around;align-items:center;background:var(--navbg);border-top:1px solid var(--border);padding:8px 6px;z-index:6}
+    .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;text-decoration:none;color:var(--navfg);font-size:12px}
+    .tab svg{width:22px;height:22px}
+    .tab.active{color:var(--navfg-active);font-weight:800}
+    /* Drawer */
+    .drawer{position:fixed;inset:0;display:none}
+    .drawer.show{display:block}
+    .drawer .bg{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+    .drawer .panel{position:absolute;left:0;top:0;bottom:0;width:min(84vw,320px);background:#fff;box-shadow:4px 0 24px rgba(0,0,0,.12);padding:16px}
+    .drawer .close{border:none;background:#eee;border-radius:10px;padding:6px 10px}
+    .drawer h3{margin:6px 0 10px}
+    .menu a{display:flex;align-items:center;gap:10px;padding:10px 8px;text-decoration:none;color:#223}
+    .menu a.active{background:#eef2ff;border-radius:10px}
+    /* A2HS helper */
+    .a2hs{position:fixed;bottom:60px;left:12px;right:12px;display:flex;justify-content:center;z-index:50}
+    .a2hs button{appearance:none;border:none;background:#0b56a6;color:#fff;padding:12px 14px;border-radius:14px;font-weight:800}
+    .a2hs.hide{display:none}
+    .sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;z-index:60}
+    .sheet.show{display:flex}
+    .sheet .panel{background:#fff;width:100%;border-top-left-radius:16px;border-top-right-radius:16px;padding:16px}
+    .sheet h3{margin:0 0 8px}
+    .sheet ol{margin:8px 0 0 18px}
+    .sheet .close{float:right;border:none;background:#eee;border-radius:10px;padding:6px 10px}
+
+    .menu.list{padding:0;margin:0}
+    .menu.list .row{
+      appearance:none;border:none;background:#fff;width:100%;
+      display:grid;grid-template-columns:28px 1fr 20px;align-items:center;
+      gap:14px;padding:14px 8px;color:#111;font-size:18px;
+      border-top:1px solid #e6e6e6;
+    }
+    .menu.list .row:first-child{border-top:none}
+    .menu.list .row .left svg{width:20px;height:20px;color:#000}
+    .menu.list .row .right svg{width:18px;height:18px;color:#bbb}
+    .menu.list .row:active{background:#f7f7f7}
+    .menu.list .row.active{background:#f0f3ff}
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <button class="hamburger" id="openDrawer" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M3 12h18M3 18h18"/>
+        </svg>
+      </button>
+      <h1 id="title">My Tickets</h1>
+    </div>
+
+    <!-- Stored Tickets -->
+    <div id="stored" class="screen active" role="region" aria-labelledby="title">
+      <div class="section-title">Stored Tickets</div>
+      <div class="ticket-list">
+        <div class="ticket-card">
+          <div class="ticket-inner">
+            <div class="logo-box">
+              <div class="logo-mini">
+                <div class="diamond t"></div><div class="diamond r"></div><div class="diamond b"></div><div class="diamond l"></div>
+                <div class="t">go<br>to</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h2 class="card-title">Adult All-Day</h2>
+              <button class="cta show-btn" data-pass="Adult All-Day">
+                <span>Show Ticket</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 7a2 2 0 0 1 2-2h7l2 2h5a2 2 0 0 1 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 1-2 2h-5l-2-2H5a2 2 0 0 1-2-2v-2a2 2 0 1 0 0-4V7z" />
+                  <path d="M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 2" fill="none"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-inner">
+            <div class="logo-box">
+              <div class="logo-mini">
+                <div class="diamond t"></div><div class="diamond r"></div><div class="diamond b"></div><div class="diamond l"></div>
+                <div class="t">go<br>to</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h2 class="card-title">Adult Rush Hour</h2>
+              <button class="cta show-btn" data-pass="Adult Rush Hour">
+                <span>Show Ticket</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 7a2 2 0 0 1 2-2h7l2 2h5a2 2 0 0 1 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 1-2 2h-5l-2-2H5a2 2 0 0 1-2-2v-2a2 2 0 1 0 0-4V7z" />
+                  <path d="M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 2" fill="none"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ticket (Active) -->
+    <div id="active" class="screen" aria-live="polite">
+      <header>
+        <h2 style="margin:0 0 6px">Metro Transit</h2>
+        <p style="margin:0;color:var(--muted)">Show operator your ticket</p>
+      </header>
+
+      <div class="seal" aria-hidden="true">
+        <div class="ring"></div>
+        <div class="token">
+          <div class="logo">
+            <div class="diamond top"></div><div class="diamond right"></div>
+            <div class="diamond bottom"></div><div class="diamond left"></div>
+            <div class="text">go<br><span style="font-weight:700">to</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="clock" class="clock">--:--:-- --</div>
+
+      <div class="pass-card">
+        <div id="passTitle" class="pass-title">Adult All-Day</div>
+        <div class="pass-sub">Minneapolis/ St. Paul Metro Area</div>
+        <div id="expires" class="expires">Expires …</div>
+        <button id="backBtn" class="back">← Back</button>
+      </div>
+    </div>
+
+    <!-- Buy -->
+    <div id="buy" class="screen" role="region" aria-label="Buy">
+      <div class="section-title">Buy & Add</div>
+      <div class="ticket-list">
+        <div class="ticket-card">
+          <div class="ticket-inner">
+            <div class="logo-box">
+              <div class="logo-mini">
+                <div class="diamond t"></div><div class="diamond r"></div><div class="diamond b"></div><div class="diamond l"></div>
+                <div class="t">go<br>to</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h2 class="card-title">Adult All‑Day</h2>
+              <button class="cta" onclick="alert('Mock purchase flow')">Add $3.50</button>
+            </div>
+          </div>
+        </div>
+        <div class="ticket-card">
+          <div class="ticket-inner">
+            <div class="logo-box">
+              <div class="logo-mini">
+                <div class="diamond t"></div><div class="diamond r"></div><div class="diamond b"></div><div class="diamond l"></div>
+                <div class="t">go<br>to</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h2 class="card-title">Rush Hour</h2>
+              <button class="cta" onclick="alert('Mock purchase flow')">Add $4.50</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help -->
+    <div id="help" class="screen" role="region" aria-label="Help">
+      <div class="section-title">Help & Info</div>
+      <p>• Show your active ticket to the operator.<br>
+         • All‑day tickets expire at <strong>2:00 AM</strong> the following day.<br>
+         • Add this app to your Home Screen for full‑screen display.</p>
+    </div>
+
+    <!-- Settings -->
+    <div id="settings" class="screen" role="region" aria-label="Settings">
+      <div class="section-title">Settings</div>
+      <label style="display:flex;gap:10px;align-items:center;margin:10px 0">
+        <input type="checkbox" id="bigClock" /> Big clock
+      </label>
+      <label style="display:flex;gap:10px;align-items:center;margin:10px 0">
+        <input type="checkbox" id="standaloneHideA2HS" checked/> Hide A2HS when standalone
+      </label>
+      <p style="color:var(--muted);font-size:13px">These settings are saved in localStorage.</p>
+    </div>
+    <!-- Drawer (hamburger) -->
+    <aside id="drawer" class="drawer" aria-hidden="true">
+      <div class="bg" id="closeDrawer"></div>
+      <div class="panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+        <button class="close" id="drawerCloseBtn">Close</button>
+        <h3 id="drawerTitle">Menu</h3>
+        
+        <nav class="menu list">
+          <button type="button" class="row" data-target="stored" aria-label="My Tickets">
+            <span class="left">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h13l2 2h3v8H3zM7 10h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span class="label">My Tickets</span>
+            <span class="right">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+          </button>
+          <button type="button" class="row" data-target="tools" aria-label="Tools">
+            <span class="left">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 7l-2-2-3 3 2 2m2-3l7 7M4 13l-1 5 5-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span class="label">Tools</span>
+            <span class="right">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+          </button>
+          <button type="button" class="row" data-target="history" aria-label="History">
+            <span class="left">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2M5 12a7 7 0 1 0 2.05-4.95" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span class="label">History</span>
+            <span class="right">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+          </button>
+          <button type="button" class="row" data-target="redeem" aria-label="Redeem Code">
+            <span class="left">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10l2 2h4v8H4zM8 12h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span class="label">Redeem Code</span>
+            <span class="right">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+          </button>
+          <button type="button" class="row" data-target="settings" aria-label="Settings">
+            <span class="left">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM4 12h3m10 0h3M6.2 6.2l2.1 2.1m7.4 7.4l2.1 2.1M6.2 17.8l2.1-2.1m7.4-7.4l2.1-2.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span class="label">Settings</span>
+            <span class="right">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+          </button>
+          <button type="button" class="row" data-target="report" aria-label="Report a Problem">
+            <span class="left">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19v-7l5-2 7 3v6M6 12l7 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span class="label">Report a Problem</span>
+            <span class="right">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+          </button>
+          <button type="button" class="row" data-target="faq" aria-label="FAQ">
+            <span class="left">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="currentColor"/><circle cx="12" cy="17" r="1.2" fill="#fff"/><path d="M12 14c0-2 2-2 2-4a2 2 0 1 0-4 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span class="label">FAQ</span>
+            <span class="right">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+          </button>
+        </nav>
+
+        </nav>
+        
+      </div>
+    </aside>
+
+    <!-- Add to Home Screen helper -->
+    <div id="a2hs" class="a2hs"><button id="a2hsBtn">Add to Home Screen</button></div>
+    <div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="panel">
+        <button class="close" id="closeSheet">Close</button>
+        <h3 id="sheetTitle">Add to Home Screen</h3>
+        <p style="margin:6px 0 8px;color:#444">On iPhone (Safari):</p>
+        <ol>
+          <li>Tap the <strong>Share</strong> button in Safari.</li>
+          <li>Choose <strong>Add to Home Screen</strong>.</li>
+          <li>Open it from your Home Screen for full‑screen experience.</li>
+        </ol>
+        <p style="margin-top:10px;color:#666;font-size:13px">
+          Note: iOS does <em>not</em> allow installing from <code>file://</code> pages. Host this file on the web (e.g., GitHub Pages or Netlify) and open it in Safari to add it.
+        </p>
+      </div>
+    </div>
+
+    <!-- Tools -->
+    <div id="tools" class="screen" role="region" aria-label="Tools">
+      <div class="section-title">Tools</div>
+      <p>Utility tools will go here.</p>
+    </div>
+
+    <!-- History -->
+    <div id="history" class="screen" role="region" aria-label="History">
+      <div class="section-title">History</div>
+      <p>View your past tickets and usage.</p>
+    </div>
+
+    <!-- Redeem -->
+    <div id="redeem" class="screen" role="region" aria-label="Redeem">
+      <div class="section-title">Redeem Code</div>
+      <p>Enter a promo or ticket code to redeem.</p>
+    </div>
+
+    <!-- Report -->
+    <div id="report" class="screen" role="region" aria-label="Report a Problem">
+      <div class="section-title">Report a Problem</div>
+      <p>Describe the issue you are facing.</p>
+    </div>
+
+    <!-- FAQ -->
+    <div id="faq" class="screen" role="region" aria-label="FAQ">
+      <div class="section-title">FAQ</div>
+      <p>Frequently asked questions and answers.</p>
+    </div>
+
+  </div>
+
+  <script>
+    // ===== Utilities =====
+    let timer=null;
+    function pad(n){ return n<10 ? '0'+n : ''+n }
+    function clockText(d){
+      let h=d.getHours(), m=d.getMinutes(), s=d.getSeconds();
+      const ampm = h>=12 ? 'PM' : 'AM'; h=h%12; if(h===0) h=12;
+      return h+':'+pad(m)+':'+pad(s)+' '+ampm;
+    }
+    function dateText(d){
+      const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return months[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+    }
+    function nextDay2AM(d){
+      const x=new Date(d.getTime());
+      x.setDate(x.getDate()+1);
+      x.setHours(2,0,0,0);
+      return x;
+    }
+    function startClock(){
+      const clock=document.getElementById('clock');
+      const exp=document.getElementById('expires');
+      function tick(){
+        const now=new Date();
+        clock.textContent=clockText(now);
+        const n2=nextDay2AM(now);
+        exp.textContent='Expires '+dateText(n2)+' at 2:00 AM';
+      }
+      tick();
+      timer=setInterval(tick,1000);
+    }
+    function stopClock(){ if(timer){ clearInterval(timer); timer=null; } }
+
+    // ===== Routing =====
+    const screens=['stored','active','buy','help','settings','tools','history','redeem','report','faq'];
+    const titleEl=document.getElementById('title');
+    const tabs=[...document.querySelectorAll('.tab')];
+
+    function activate(id){
+      screens.forEach(s=>{
+        document.getElementById(s).classList.toggle('active', s===id);
+      });
+      tabs.forEach(t=>{
+        const href=t.getAttribute('href').slice(1);
+        t.classList.toggle('active', href===id);
+        if(href===id){ titleEl.textContent = t.dataset.title || 'Metro Transit'; }
+      });
+      // ticket clock lifecycle
+      if(id==='active'){ startClock(); } else { stopClock(); }
+      // A2HS bar hide in active ticket
+      const a2 = document.getElementById('a2hs');
+      if(id==='active'){ a2.classList.add('hide'); }
+      else if(!window.navigator.standalone){ a2.classList.remove('hide'); }
+      // update drawer selected
+      document.querySelectorAll('.menu .link').forEach(a=>{
+        a.classList.toggle('active', a.getAttribute('href')==='#'+id);
+      });
+    }
+
+    function routeFromHash(){
+      const id=location.hash.replace('#','') || 'stored';
+      if(!screens.includes(id)){ location.hash = '#stored'; return; }
+      activate(id);
+    }
+    window.addEventListener('hashchange', routeFromHash);
+    routeFromHash();
+
+    // Buttons that "Show Ticket" => jump to Active with correct title
+    document.querySelectorAll('.show-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const name=btn.getAttribute('data-pass') || 'Ticket';
+        document.getElementById('passTitle').textContent = name;
+        location.hash = '#active';
+      });
+    });
+    document.getElementById('backBtn').addEventListener('click', ()=> history.back());
+
+    // ===== Drawer =====
+    const drawer=document.getElementById('drawer');
+    document.getElementById('openDrawer').addEventListener('click', ()=> drawer.classList.add('show'));
+    document.getElementById('closeDrawer').addEventListener('click', ()=> drawer.classList.remove('show'));
+    document.getElementById('drawerCloseBtn').addEventListener('click', ()=> drawer.classList.remove('show'));
+    drawer.addEventListener('click', (e)=>{ if(e.target===drawer) drawer.classList.remove('show'); });
+
+    // Drawer list routing
+    document.querySelectorAll('.menu.list .row').forEach(row=>{
+      row.addEventListener('click', ()=>{
+        const t=row.dataset.target;
+        if(t){ location.hash = '#'+t; drawer.classList.remove('show'); }
+      });
+    });
+// ===== A2HS helper =====
+    const a2hsBar=document.getElementById('a2hs');
+    const sheet=document.getElementById('sheet');
+    document.getElementById('a2hsBtn').addEventListener('click', ()=> sheet.classList.add('show'));
+    document.getElementById('closeSheet').addEventListener('click', ()=> sheet.classList.remove('show'));
+    sheet.addEventListener('click', (e)=>{ if(e.target===sheet) sheet.classList.remove('show'); });
+    if(window.navigator.standalone){ a2hsBar.classList.add('hide'); }
+
+    // ===== Settings persistence =====
+    const bigClock=document.getElementById('bigClock');
+    const standaloneHideA2HS=document.getElementById('standaloneHideA2HS');
+    function loadSettings(){
+      const s=JSON.parse(localStorage.getItem('mt_settings')||'{}');
+      if(s.bigClock) bigClock.checked=true;
+      if(s.hideA2HS!==undefined) standaloneHideA2HS.checked = !!s.hideA2HS;
+      applySettings();
+    }
+    function saveSettings(){
+      const s={ bigClock: bigClock.checked, hideA2HS: standaloneHideA2HS.checked };
+      localStorage.setItem('mt_settings', JSON.stringify(s));
+      applySettings();
+    }
+    function applySettings(){
+      document.getElementById('clock').style.fontSize = bigClock.checked ? '64px' : '56px';
+      if(standaloneHideA2HS.checked && window.navigator.standalone){ a2hsBar.classList.add('hide'); }
+    }
+    [bigClock, standaloneHideA2HS].forEach(el=> el.addEventListener('change', saveSettings));
+    loadSettings();
+  </script>
+</body>
+</html>
