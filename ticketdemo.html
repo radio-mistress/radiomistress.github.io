@@ -330,8 +330,7 @@
       </div>
     </aside>
 
-    <!-- Add to Home Screen helper -->
-    </div>
+ 
 
     <!-- Tools -->
     <div id="tools" class="screen" role="region" aria-label="Tools">
@@ -414,10 +413,8 @@
       });
       // ticket clock lifecycle
       if(id==='active'){ startClock(); } else { stopClock(); }
-      // A2HS bar hide in active ticket
-      const a2 = document.getElementById('a2hs');
-      if(id==='active'){ a2.classList.add('hide'); }
-      else if(!window.navigator.standalone){ a2.classList.remove('hide'); }
+ 
+      
       // update drawer selected
       document.querySelectorAll('.menu .link').forEach(a=>{
         a.classList.toggle('active', a.getAttribute('href')==='#'+id);
@@ -455,7 +452,9 @@
         if(t){ location.hash = '#'+t; drawer.classList.remove('show'); }
       });
     });
-// ===== Settings persistence =====
+
+
+    // ===== Settings persistence =====
     const bigClock=document.getElementById('bigClock');
     const standaloneHideA2HS=document.getElementById('standaloneHideA2HS');
     function loadSettings(){
