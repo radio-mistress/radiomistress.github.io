@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="favicon.png">
-    <title>Coming Soon!</title>
+    <title>Coming soon!</title>
     <style>
         * {
             margin: 0;
@@ -23,53 +23,62 @@
             font-family: Lato, "Segoe UI", Avenir, Ubuntu, Tahoma, Verdana, Helvetica, sans-serif;
             background: url("favicon.png") no-repeat center center;
             background-size: contain;
-            background-color: #000;
         }
 
         h1 {
-            font-size: 2em;
+            font-size: 4em;
             font-weight: normal;
             text-transform: lowercase;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.5);
             color: white;
             padding: 20px;
             border-radius: 10px;
-            margin-bottom: 40px;
+            margin-bottom: 250px;
         }
 
-        p.disclaimer {
-            max-width: 700px;
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
+        form {
+            background: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
-            font-size: 1em;
-            line-height: 1.5;
-            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.15);
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 500px;
         }
 
-        p.disclaimer strong {
-            color: #FFB7C5;
+        label {
+            color: white;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            background: #ff6600;
+            color: white;
+            font-size: 1.2em;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        input[type="submit"]:hover {
+            background: #ff4500;
         }
     </style>
 </head>
-<body>
-    <h1>Home of the first open source FAA certified radio</h1>
-    <p class="disclaimer">
-        This website is an independent, personal development site/blog authored and maintained by <strong>RadioMistress</strong>.  
-        It is <strong>not affiliated, associated, authorized, endorsed by,</strong> or in any way officially connected with the ExpressLRS project, its official development team, or its website at 
-        <a href="https://www.expresslrs.org" target="_blank">expresslrs.org</a>, nor with <strong>RadiomasterRC</strong> or any of its affiliates, brands, or subsidiaries.  
-        All opinions, commentary, and content published here represent the personal views of the author alone.
-        <br><br>
-        <strong>Compliance Notice:</strong>  
-        Radiomistress operates in full compliance with all applicable U.S. export control laws and regulations, including the Arms Export Control Act <strong>(AECA)</strong>, the International Traffic in Arms Regulations <strong>(ITAR)</strong>, and the Export Administration Regulations <strong>(EAR)</strong>.  
-        All radio devices, firmware, and related materials discussed or developed herein are intended solely for lawful, civilian, and recreational purposes.  
-        <strong>Radiomistress does not support, promote, or endorse the design, development, or use of weapon systems or safety critical applications as defined by above regulations</strong>
-        <br><br>
-        All product names, trademarks, and registered trademarks are the property of their respective owners.  
-        Use of such names, logos, or brands does not imply endorsement or affiliation.
-        <br><br>
-        Made by cats in Minneapolis, USA.
-     </p>
-</body>
 </html>
